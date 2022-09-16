@@ -1,6 +1,8 @@
 import getopt
 import sys
 
+from pipeline_delete import pipeline_delete_action
+
 
 class Config:
     """
@@ -50,7 +52,7 @@ def parse_args(args):
         if opt in ("-t", "--token"):
             config.token = arg
         if opt in ("-c", "--count"):
-            config.count = arg
+            config.count = int(arg)
         if opt in ("-p", "--project"):
             config.project = arg
         if opt in ("-a", "--action"):
@@ -61,7 +63,7 @@ def parse_args(args):
 
 def print_usage(program_name):
     """
-    Prints the application's usage statement and quits the application. It will retun an error code to the
+    Prints the application's usage statement and quits the application. It will return an error code to the
     operating system.
 
     :param program_name: The name of the application.
@@ -75,6 +77,19 @@ def print_usage(program_name):
     sys.exit(-1)
 
 
+def action_factory(action):
+    """
+    Factory method to return the function that will handle the specific action requested by the user.
+
+    :param action: The action requested by the user.
+    :return: The function that will handle that action. If there is no match, will return None.
+    """
+    if action == "pipeline-delete":
+        return pipeline_delete_action
+    else:
+        return None
+
+
 if __name__ == '__main__':
 
     program_config = parse_args(sys.argv[1:])
@@ -82,6 +97,9 @@ if __name__ == '__main__':
     if program_config.in_error():
         print_usage(sys.argv[0])
 
-    print(program_config.token)
-    print(program_config.project)
-    print(program_config.count)
+    func = action_factory(program_config.action)
+
+    if func is None:
+        print_usage(sys.argv[0])
+    else:
+        func(config=program_config)
