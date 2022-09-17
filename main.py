@@ -10,11 +10,16 @@ def parse_args():
 
     :return: The parsed command-line arguments.
     """
-    parser = argparse.ArgumentParser(description='GitLab API helper')
-    parser.add_argument('--token', '-t', nargs='?', dest='token', help='Your GitLab access token', required=True)
-    parser.add_argument('--project', '-p', nargs='?', dest='project', help='Your GitLab project', required=True)
-    parser.add_argument('--action', '-a', nargs='?', dest='action', help='Your GitLab access token', required=True)
-    parser.add_argument('--count', '-c', nargs='?', dest='count', help='Action dependent count of things to do',
+
+    access_token_instructions = "https://docs.gitlab.com/ee/user/profile/personal_access_tokens.html"
+    epilog_text = f"Instructions for generating an access token can be found here: {access_token_instructions}"
+
+    parser = argparse.ArgumentParser(description='GitLab API helper', epilog=epilog_text)
+    parser.add_argument('--token', '-t', nargs='?', dest='token', help='your GitLab access token', required=True)
+    parser.add_argument('--project', '-p', nargs='?', dest='project', help='your GitLab project', required=True)
+    parser.add_argument('--action', '-a', nargs='?', dest='action', choices=["pipeline-delete"],
+                        help='the action for this utility to perform', required=True)
+    parser.add_argument('--count', '-c', nargs='?', dest='count', help='action dependent count of things to do',
                         type=int, default=50)
 
     return parser.parse_args()
