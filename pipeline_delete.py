@@ -1,6 +1,6 @@
 import requests
 
-from api_utils import get_common_headers, is_success, create_http_error, HttpError, fatal_http_error
+from api_utils import get_common_headers
 
 PIPELINE_FETCH_URI = "https://gitlab.com/api/v4/projects/{project}/pipelines?sort=asc"
 PIPELINE_DELETE_URI = "https://gitlab.com/api/v4/projects/{project}/pipelines/{pipeline}"
@@ -18,8 +18,7 @@ def delete_single_pipeline(config, pipeline_id):
     delete_url = PIPELINE_DELETE_URI.format(project=config.project, pipeline=pipeline_id)
     headers = get_common_headers(config)
     response = requests.delete(delete_url, headers=headers)
-    if not is_success(response):
-        raise create_http_error(delete_url, response)
+    response.raise_for_status()
     print("OK")
 
 
@@ -54,23 +53,20 @@ def pipeline_delete_action(config):
 
             # Get the next batch of pipelines to delete.
             response = requests.get(fetch_url, headers=headers)
+            response.raise_for_status()
 
-            if is_success(response):
+            all_pipelines = response.json()
 
-                all_pipelines = response.json()
+            # Figure out how many pipelines to delete. If there are enough pipelines
+            # in the response to make the total count deleted exceed the requested amount,
+            # then just delete enough to get to the requested amount. Otherwise, delete
+            # all pipelines in the response.
+            total_to_delete = len(all_pipelines)
+            if total_to_delete + count_deleted > config.count:
+                total_to_delete = config.count - count_deleted
 
-                # Figure out how many pipelines to delete. If there are enough pipelines
-                # in the response to make the total count deleted exceed the requested amount,
-                # then just delete enough to get to the requested amount. Otherwise, delete
-                # all pipelines in the response.
-                total_to_delete = len(all_pipelines)
-                if total_to_delete + count_deleted > config.count:
-                    total_to_delete = config.count - count_deleted
-
-                # Delete the pipelines and update the running total.
-                count_deleted += delete_pipelines(config, all_pipelines[:total_to_delete])
-                print(f"Deleted {count_deleted} pipelines")
-            else:
-                raise create_http_error(fetch_url, response)
-    except HttpError as err:
-        fatal_http_error(err)
+            # Delete the pipelines and update the running total.
+            count_deleted += delete_pipelines(config, all_pipelines[:total_to_delete])
+            print(f"Deleted {count_deleted} pipelines")
+    except requests.exceptions.HTTPError as err:
+        raise SystemExit(err)
