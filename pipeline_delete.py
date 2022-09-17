@@ -1,6 +1,6 @@
 import requests
 
-from api_utils import *
+from api_utils import get_common_headers, is_success, create_http_error, HttpError, fatal_http_error
 
 PIPELINE_FETCH_URI = "https://gitlab.com/api/v4/projects/{project}/pipelines?sort=asc"
 PIPELINE_DELETE_URI = "https://gitlab.com/api/v4/projects/{project}/pipelines/{pipeline}"
