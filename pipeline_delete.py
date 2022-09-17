@@ -1,9 +1,10 @@
 import requests
 
 from api_utils import get_common_headers
+from api_utils import get_base_uri
 
-PIPELINE_FETCH_URI = "https://gitlab.com/api/v4/projects/{project}/pipelines?sort=asc"
-PIPELINE_DELETE_URI = "https://gitlab.com/api/v4/projects/{project}/pipelines/{pipeline}"
+PIPELINE_FETCH_URI = "{base}/projects/{project}/pipelines?sort=asc"
+PIPELINE_DELETE_URI = "{base}/projects/{project}/pipelines/{pipeline}"
 
 
 def delete_single_pipeline(config, pipeline_id):
@@ -15,7 +16,7 @@ def delete_single_pipeline(config, pipeline_id):
     :return: void
     """
     print(f"Deleting pipeline {pipeline_id}...", end="")
-    delete_url = PIPELINE_DELETE_URI.format(project=config.project, pipeline=pipeline_id)
+    delete_url = PIPELINE_DELETE_URI.format(base=get_base_uri(config), project=config.project, pipeline=pipeline_id)
     headers = get_common_headers(config)
     response = requests.delete(delete_url, headers=headers)
     response.raise_for_status()
@@ -45,7 +46,7 @@ def pipeline_delete_action(config):
     """
     count_deleted = 0
 
-    fetch_url = PIPELINE_FETCH_URI.format(project=config.project)
+    fetch_url = PIPELINE_FETCH_URI.format(base=get_base_uri(config), project=config.project)
     headers = get_common_headers(config)
 
     try:
