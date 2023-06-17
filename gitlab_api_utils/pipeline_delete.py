@@ -1,7 +1,7 @@
 import requests
 
-from api_utils import get_common_headers
-from api_utils import get_base_uri
+from .api_utils import get_common_headers
+from .api_utils import get_base_uri
 
 PIPELINE_FETCH_URI = "{base}/projects/{project}/pipelines?sort=asc"
 PIPELINE_DELETE_URI = "{base}/projects/{project}/pipelines/{pipeline}"
