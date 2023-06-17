@@ -16,4 +16,4 @@ def get_base_uri(config):
     :return:
     """
     # Config is currently unused. It's there in anticipation of future functionality.
-    return "https://gitlab.com/api/v4/"
+    return "https://gitlab.com/api/v4"
