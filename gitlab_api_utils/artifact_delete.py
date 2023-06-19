@@ -15,7 +15,6 @@ def artifact_delete_action(config):
     """
     print(f"Deleting artifacts for job {config.job}...", end="")
     delete_url = ARTIFACTS_DELETE_URI.format(base=get_base_uri(config), project=config.project, job=config.job)
-    print(delete_url)
     headers = get_common_headers(config)
     response = requests.delete(delete_url, headers=headers)
     response.raise_for_status()
